@@ -241,7 +241,7 @@ with st.sidebar:
     st.divider()
     st.subheader("Filters")
 
-    st.text_input("Search engineer", key="f_name_query", placeholder="e.g., andrew, yakko...")
+    st.text_input("Search engineer", key="f_name_query", placeholder="")
     st.selectbox("Contributor archetype", ["All", "Balanced", "Shipper", "Reviewer", "Mixed"], key="f_role")
     st.slider("Min merged PRs", 0, 30, 0, 1, key="f_min_merged")
     st.slider("Min reviews", 0, 60, 0, 1, key="f_min_reviews")
