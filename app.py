@@ -341,8 +341,7 @@ with tab1:
         st.selectbox(
             "Select engineer",
             options=options,
-            key="selected_engineer",
-            help="Selection persists across filter changes when the engineer remains in the filtered set."
+            key="selected_engineer"
         )
 
         # Quick peer comparison toggle
