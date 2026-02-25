@@ -39,7 +39,7 @@ if "use_llm_ai" not in st.session_state:
 _defaults = {
     "f_name_query": "",
     "f_role": "All",
-    "f_min_merged": 0,
+    # "f_min_merged": 0,
     "f_min_reviews": 0,
     "f_min_weeks": 0,
     "f_min_score": 0.0,
