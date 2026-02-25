@@ -612,24 +612,24 @@ with tab3:
     st.markdown("""
 ### What 'impact' means here
 Impact is modeled as a combination of:
-- shipped work (merged PR count + log-scaled volume)
-- review leverage (reviews, approvals, breadth of authors supported)
-- execution quality proxies (cycle time, review coverage on authored PRs, large-PR discipline)
-- consistency and collaboration breadth
-- momentum (recent 30d vs prior period)
+- Shipped work (merged PR count + log-scaled volume)
+- Review leverage (reviews, approvals, breadth of authors supported)
+- Execution quality proxies (cycle time, review coverage on authored PRs, large-PR discipline)
+- Consistency and collaboration breadth
+- Momentum (recent 30d vs prior period)
 
 ### Why this is more useful than commit counts
 Commits and LoC are easy to game and vary by working style. This dashboard prioritizes:
-- work that shipped
-- contribution to team throughput via reviews
-- sustained activity
-- collaboration across contributors
-- healthy execution patterns
+- Work that shipped
+- Contribution to team throughput via reviews
+- Sustained activity
+- Collaboration across contributors
+- Healthy execution patterns
 
 ### AI layer
 The dashboard includes AI-assisted summaries:
-- executive view summary for the filtered cohort
-- selected engineer narrative summary
+- Executive view summary for the filtered cohort
+- Selected engineer narrative summary
 If no LLM API key is configured, it uses a deterministic local summarizer to ensure reproducibility.
 """)
 
