@@ -171,7 +171,7 @@ def build_component_breakdown(selected_row: pd.Series) -> pd.DataFrame:
         ("PR review coverage", "norm_authored_pr_review_coverage_pct", WEIGHTS["norm_authored_pr_review_coverage_pct"]),
         ("Smaller PR discipline", "norm_large_pr_share_inverse", WEIGHTS["norm_large_pr_share_inverse"]),
         ("Weeks active", "norm_weeks_active", WEIGHTS["norm_weeks_active"]),
-        ("Collaborators", "norm_unique_collaborators", WEIGHTS["norm_unique_collaborators"]),
+        ("Unique collaborators", "norm_unique_collaborators", WEIGHTS["norm_unique_collaborators"]),
         ("Momentum", "norm_momentum_score", WEIGHTS["norm_momentum_score"]),
     ]
 
@@ -321,7 +321,7 @@ with c8:
 # -----------------------------------
 # Tabs (professional layout)
 # -----------------------------------
-tab1, tab2, tab3 = st.tabs(["🏆 Leaderboard & Drilldown", "🧠 AI Insights & Story", "✅ Methods"])
+tab1, tab2, tab3 = st.tabs(["🏆 Leaderboard & Drilldown", "🧠 AI Insights & Story", "✅ Validation & Methods"])
 
 # -----------------------------------
 # TAB 1 — Leaderboard & Drilldown
@@ -371,7 +371,7 @@ with tab1:
         with r7:
             metric_card("PR review coverage", format_pct(row["authored_pr_review_coverage_pct"]))
         with r8:
-            metric_card("Collaborators", int(row["unique_collaborators"]))
+            metric_card("Unique collaborators", int(row["unique_collaborators"]))
         with r9:
             metric_card("Domains", int(row["domain_coverage_count"]))
         with r10:
@@ -504,7 +504,7 @@ with tab2:
     left2, right2 = st.columns([1.15, 1.35])
 
     with left2:
-        st.markdown("### Selected Engineer Narrative")
+        st.markdown("### Selected engineer narrative")
         selected_row = filtered_df.loc[filtered_df["engineer"] == st.session_state.selected_engineer].iloc[0]
 
         narrative = None
@@ -570,28 +570,66 @@ with tab2:
 # TAB 3 — Validation & Methods
 # -----------------------------------
 with tab3:
+    st.subheader("Validation checks")
+    v1, v2 = st.columns(2)
+
+    with v1:
+        st.markdown("### Top raw merged PR authors (window)")
+        top_auth = (
+            td.prs_merged_window.groupby("author_login")
+            .size()
+            .reset_index(name="merged_prs")
+            .sort_values("merged_prs", ascending=False)
+            .head(15)
+        )
+        st.dataframe(top_auth, use_container_width=True, hide_index=True)
+
+        st.markdown("### Top reviewers (window)")
+        top_rev = (
+            td.reviews_window.groupby("reviewer_login")
+            .size()
+            .reset_index(name="reviews")
+            .sort_values("reviews", ascending=False)
+            .head(15)
+        )
+        st.dataframe(top_rev, use_container_width=True, hide_index=True)
+
+    with v2:
+        st.markdown("### Sample merged PR records")
+        sample_pr = td.prs_merged_window[[
+            "pr_number", "author_login", "pr_title", "merged_at", "pr_size", "pr_volume_points", "domain_primary"
+        ]].sort_values("merged_at", ascending=False).head(20)
+        st.dataframe(sample_pr, use_container_width=True, hide_index=True)
+
+        st.markdown("### Sample reviews")
+        sample_rv = td.reviews_window[[
+            "pr_number", "pr_author_login", "reviewer_login", "review_state", "review_submitted_at"
+        ]].sort_values("review_submitted_at", ascending=False).head(20)
+        st.dataframe(sample_rv, use_container_width=True, hide_index=True)
+
+    st.divider()
     st.subheader("Methodology")
     st.markdown("""
 ### What 'impact' means here
 Impact is modeled as a combination of:
-- Shipped work (merged PR count + log-scaled volume)
-- Review leverage (reviews, approvals, breadth of authors supported)
-- Execution quality proxies (cycle time, review coverage on authored PRs, large-PR discipline)
-- Consistency and collaboration breadth
-- Momentum (recent 30d vs prior period)
+- shipped work (merged PR count + log-scaled volume)
+- review leverage (reviews, approvals, breadth of authors supported)
+- execution quality proxies (cycle time, review coverage on authored PRs, large-PR discipline)
+- consistency and collaboration breadth
+- momentum (recent 30d vs prior period)
 
 ### Why this is more useful than commit counts
 Commits and LoC are easy to game and vary by working style. This dashboard prioritizes:
-- Work that shipped
-- Contribution to team throughput via reviews
-- Sustained activity
-- Collaboration across contributors
-- Healthy execution patterns
+- work that shipped
+- contribution to team throughput via reviews
+- sustained activity
+- collaboration across contributors
+- healthy execution patterns
 
 ### AI layer
 The dashboard includes AI-assisted summaries:
-- Executive view summary for the filtered cohort
-- Selected engineer narrative summary
+- executive view summary for the filtered cohort
+- selected engineer narrative summary
 If no LLM API key is configured, it uses a deterministic local summarizer to ensure reproducibility.
 """)
 
@@ -603,5 +641,5 @@ If no LLM API key is configured, it uses a deterministic local summarizer to ens
 ### Known limitations
 - This uses metadata proxies and cannot directly measure code quality, architectural decisions, mentoring depth, or incident response.
 - Domain classification is heuristic (labels/title-based), intended for directional insight.
-- Nested pagination for >50 reviews on a PR is not expanded in this version.
+- Nested pagination for >50 reviews on a PR is not expanded in this version (pragmatic tradeoff for assignment scope).
 """)
